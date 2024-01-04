@@ -6,7 +6,8 @@ const int switchPin = 14; // Mode switch
 const int ledPins[11] = {3,4,5,6,7,8,9,10,11,12,13};
 
 const int startSpeed = 200;
-const int speedRamp = 20;
+
+int winNum = 0;
 
 bool ledStates[11];
 bool pressed = false;
@@ -16,18 +17,27 @@ int speed = startSpeed;
 bool gameMode = GAMEMODE1;
 
 void winAnimation(){
-  for (int i = 0; i < 11; i ++){
+  for (int i = 4; i < 7; i ++){
     digitalWrite(ledPins[i], HIGH);
   }
   delay(100);
-  for (int i = 0; i < 11; i ++){
+  for (int i = 4; i < 7; i ++){
     digitalWrite(ledPins[i], LOW);
   }
   delay(100);
 }
 void loseAnimation(){
-  digialWrite(ledPins[0], HIGH);
-
+  digitalWrite(ledPins[0], HIGH);
+  digitalWrite(ledPins[1], HIGH);
+  digitalWrite(ledPins[9], HIGH);
+  digitalWrite(ledPins[10], HIGH);
+  delay(200);
+  digitalWrite(ledPins[0], LOW);
+  digitalWrite(ledPins[1], LOW);
+  digitalWrite(ledPins[9], LOW);
+  digitalWrite(ledPins[10], LOW);
+  delay(200);
+ 
 }
 
 void configurePins() {
@@ -45,6 +55,8 @@ void reset() {
     ledStates[i] = false;
   }
   writeLeds();
+  pressed = false;
+
 }
 
 void buttonPressedISR (){
@@ -76,16 +88,31 @@ void nextLed() {
 
 void gameMode1() {
   if (!pressed){
-    digitalWrite(ledPins[currentLedNum], HIGH);
     nextLed();
+    digitalWrite(ledPins[currentLedNum], HIGH);
     if (!direction){
       digitalWrite(ledPins[currentLedNum + 1], LOW);
     }
     else digitalWrite(ledPins[currentLedNum - 1], LOW);
+    delay(speed);
   }
-  else {
+  else{
     if (currentLedNum == 5){
-
+      for (int i = 0; i < 4; i++){
+       winAnimation();
+      }
+      delay(500);
+      winNum++;
+      speed = speed*0.8;
+      pressed = false;
+    }
+    else{
+      loseAnimation();
+      delay(500);
+      reset();
+      currentLedNum = -1;
+      winNum = 0;
+      pressed = false;
     }
   }
 }
