@@ -9,10 +9,26 @@ const int startSpeed = 200;
 const int speedRamp = 20;
 
 bool ledStates[11];
-bool ended = false;
+bool pressed = false;
 int currentLedNum = 0;
+bool direction = true;
 int speed = startSpeed;
 bool gameMode = GAMEMODE1;
+
+void winAnimation(){
+  for (int i = 0; i < 11; i ++){
+    digitalWrite(ledPins[i], HIGH);
+  }
+  delay(100);
+  for (int i = 0; i < 11; i ++){
+    digitalWrite(ledPins[i], LOW);
+  }
+  delay(100);
+}
+void loseAnimation(){
+  digialWrite(ledPins[0], HIGH);
+
+}
 
 void configurePins() {
   for (int i = 0; i < 11; i++) {
@@ -23,7 +39,8 @@ void configurePins() {
 }
 
 void reset() {
-  speed = defaultSpeed;
+  speed = startSpeed;
+  direction = true;
   for (int i = 0; i < 11; i++) {
     ledStates[i] = false;
   }
@@ -31,7 +48,7 @@ void reset() {
 }
 
 void buttonPressedISR (){
-  ended = true;
+  pressed = true;
 }
 
 void writeLeds() {
@@ -40,7 +57,38 @@ void writeLeds() {
   }
 }
 
-void gameMode1() {}
+void nextLed() {
+  if (direction) {
+    if (currentLedNum == 10) {
+      direction = false;
+      currentLedNum = 9;
+    }
+    else currentLedNum++;
+  }
+  else {
+    if (currentLedNum == 0) {
+      direction = true;
+      currentLedNum = 1;
+    }
+    else currentLedNum--;
+  }
+}
+
+void gameMode1() {
+  if (!pressed){
+    digitalWrite(ledPins[currentLedNum], HIGH);
+    nextLed();
+    if (!direction){
+      digitalWrite(ledPins[currentLedNum + 1], LOW);
+    }
+    else digitalWrite(ledPins[currentLedNum - 1], LOW);
+  }
+  else {
+    if (currentLedNum == 5){
+
+    }
+  }
+}
 void gameMode2() {}
 
 // Arduino main functions
@@ -53,7 +101,7 @@ void setup() {
 void loop() {
   if (digitalRead(switchPin) != gameMode) {
     gameMode = !gameMode;
-    reset()
+    reset();
   }
 
   if (gameMode == GAMEMODE1) gameMode1();
