@@ -9,7 +9,6 @@ const int startSpeed = 200;
 
 int winNum = 0;
 
-bool ledStates[11];
 bool pressed = false;
 int currentLedNum = 0;
 bool direction = true;
@@ -52,21 +51,14 @@ void reset() {
   speed = startSpeed;
   direction = true;
   for (int i = 0; i < 11; i++) {
-    ledStates[i] = false;
+    digitalWrite(ledPins[i], LOW);
   }
-  writeLeds();
   pressed = false;
 
 }
 
 void buttonPressedISR (){
   pressed = true;
-}
-
-void writeLeds() {
-  for (int i = 0; i < 11; i++) {
-    digitalWrite(ledPins[i], ledStates[i]);
-  }
 }
 
 void nextLed() {
@@ -103,7 +95,7 @@ void gameMode1() {
       }
       delay(500);
       winNum++;
-      speed = speed*0.8;
+      speed = speed*0.89;
       pressed = false;
     }
     else{
